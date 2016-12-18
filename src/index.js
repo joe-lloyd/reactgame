@@ -1,3 +1,7 @@
 import 'babel-polyfill';
 
-let cheese = 5;
+document.addEventListener("DOMContentLoaded",() => {
+
+	alert('game under construction, you SOB');
+
+});

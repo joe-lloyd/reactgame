@@ -6,7 +6,10 @@ webpackJsonp([0],[
 	
 	__webpack_require__(1);
 	
-	var cheese = 5;
+	document.addEventListener("DOMContentLoaded", function () {
+	
+		alert('game under construction, you SOB');
+	});
 
 /***/ }
 ]);

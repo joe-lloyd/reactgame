@@ -1,0 +1,15 @@
+main {
+	width: 1000px;
+	height: 600px;
+	margin: auto;
+}
+
+.game {
+	width: 100%;
+	height: 100%;
+	background-color: mediumturquoise;
+}
+
+body {
+	background-color: darkred;
+}

@@ -9,7 +9,9 @@ webpackJsonp([0],[
 	document.addEventListener("DOMContentLoaded", function () {
 	
 		if (document.querySelector('.game')) {
-			alert('game under construction, you SOB');
+			setTimeout(function () {
+				alert('game under construction, you SOB');
+			}, 5000);
 		}
 	});
 

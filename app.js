@@ -8,7 +8,9 @@ webpackJsonp([0],[
 	
 	document.addEventListener("DOMContentLoaded", function () {
 	
-		alert('game under construction, you SOB');
+		if (document.querySelector('.game')) {
+			alert('game under construction, you SOB');
+		}
 	});
 
 /***/ }

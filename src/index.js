@@ -2,6 +2,8 @@ import 'babel-polyfill';
 
 document.addEventListener("DOMContentLoaded",() => {
 
-	alert('game under construction, you SOB');
+	if (document.querySelector('.game')) {
+		alert('game under construction, you SOB');
+	}
 
 });

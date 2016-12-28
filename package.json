@@ -23,7 +23,8 @@
     "react-dom": "^15.4.1",
     "redux": "^3.6.0"
   },
-	"dependencies": {
-		"webpack": "latest"
-	}
+  "dependencies": {
+    "react-game-kit": "0.0.1",
+    "webpack": "latest"
+  }
 }

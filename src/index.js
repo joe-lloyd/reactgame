@@ -1,15 +1,17 @@
 import 'babel-polyfill';
-import App from './app';
-import ReactDOM from 'react-dom'
-import React, { Component } from 'react';
+import Ball from './ball';
+import Paddle from './paddle';
 
 document.addEventListener("DOMContentLoaded",() => {
+	let canvas = document.getElementById('game');
+	let ctx = canvas.getContext('2d');
 
-	if (document.querySelector('.game')) {
-		ReactDOM.render(
-			<App />,
-			document.querySelector('.game')
-		)
-	}
+	let paddle = new Paddle(ctx, canvas);
+	let ball = new Ball(ctx, canvas, paddle);
 
+	setInterval(() => {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ball.draw();
+		paddle.draw();
+	}, 10);
 });

@@ -28,7 +28,9 @@ export default class Game extends Component {
 		super();
 
 		this.state = {
-			facing: 0
+			facing: 0,
+			isMoving: false,
+			steps: [0, 0, 0, 0]
 		};
 	}
 
@@ -40,6 +42,7 @@ export default class Game extends Component {
 	 */
 	componentDidMount () {
 		this.context.loop.subscribe(this.update);
+		console.log(this.props.keys)
 	}
 
 	/**
@@ -60,11 +63,11 @@ export default class Game extends Component {
 	 */
 	render () {
 		return (
-			<Sprite repeat={true}
+			<Sprite repeat={this.state.isMoving}
 					scale={0.4}
 					offset={[0, 10]}
 					state={this.state.facing}
-					steps={[3, 3, 3, 3]}
+					steps={this.state.steps}
 					tileHeight={2400/4}
 					tileWidth={1841/4}
 					src="./sprites/test2.png" />
@@ -79,16 +82,27 @@ export default class Game extends Component {
 		const { keys } = this.props;
 
 		if (keys.isDown(keys.SPACE)) {
-			this.setState({facing: 0})
+			this.setState({facing: 0, isMoving: true, steps: [3, 3, 3, 3]})
+		} else {
+			this.setState({isMoving: false});
 		}
+
 		if (keys.isDown(keys.LEFT)) {
-			this.setState({facing: 2})
+			this.setState({facing: 2, isMoving: true, steps: [3, 3, 3, 3]})
+		} else {
+			this.setState({isMoving: false});
 		}
+
 		if (keys.isDown(keys.RIGHT)) {
-			this.setState({facing: 1})
+			this.setState({facing: 1, isMoving: true, steps: [3, 3, 3, 3]})
+		} else {
+			this.setState({isMoving: false});
 		}
+
 		if (keys.isDown(keys.UP)) {
-			this.setState({facing: 3})
+			this.setState({facing: 3, isMoving: true, steps: [3, 3, 3, 3]})
+		} else {
+			this.setState({isMoving: false});
 		}
 	}
 }

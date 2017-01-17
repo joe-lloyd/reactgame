@@ -1,15 +1,11 @@
-main {
-	width: 1000px;
-	height: 600px;
+canvas {
 	margin: auto;
+	border: solid 1px black;
+	border-radius: 5px;
+	cursor: none;
 }
 
-.game {
-	width: 100%;
-	height: 100%;
-	background-color: mediumturquoise;
-}
-
-body {
-	background-color: darkred;
+main {
+	margin: auto;
+	width: 500px;
 }

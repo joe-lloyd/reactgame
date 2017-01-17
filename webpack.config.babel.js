@@ -10,11 +10,8 @@ import webpack from "webpack";
 module.exports = [
 	{
 		entry: {
-			app: "./src",
+			app: path.join(__dirname, "./src"),
 			vendor: [
-				"react",
-				"redux",
-				"react-dom",
 				"babel-polyfill"
 			]
 		},

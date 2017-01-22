@@ -1,7 +1,6 @@
-#React Game
+#ES6 Game
 
-POC for react + redux as a library for creating 2d games.
-**NOT** rendered server-side
+POC for es6 OOP game
 
 ##Setup
 

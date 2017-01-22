@@ -57,7 +57,7 @@ export default class Physics {
 				this.ball.hitSideY();
 				this.paddle.paddleHit();
 			} else {
-				// document.location.reload();
+				document.location.reload();
 			}
 		}
 	}

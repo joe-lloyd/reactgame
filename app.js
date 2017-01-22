@@ -335,7 +335,7 @@ webpackJsonp([0],{
 						this.ball.hitSideY();
 						this.paddle.paddleHit();
 					} else {
-						// document.location.reload();
+						document.location.reload();
 					}
 				}
 			}

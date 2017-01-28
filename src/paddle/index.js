@@ -18,8 +18,8 @@ export default class Paddle {
 	constructor (canvas, ctx) {
 		this.canvas = canvas;
 		this.ctx = ctx;
-		this.paddleHeight = 10;
-		this.paddleWidth = 75;
+		this.paddleHeight = canvas.height * 0.03;
+		this.paddleWidth = canvas.width * 0.10;
 		this.paddleX = (canvas.width - this.paddleWidth) / 2;
 
 		this.boundingRect = canvas.getBoundingClientRect();

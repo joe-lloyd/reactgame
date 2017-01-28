@@ -55,6 +55,10 @@ export default class Ball {
 		this.dy = -this.dy;
 	}
 
+	hitPaddleRefraction(refraction) {
+		this.dx += refraction;
+	}
+
 	/**
 	 * @description
 	 * Draws a frame of the ball

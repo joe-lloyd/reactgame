@@ -22,8 +22,8 @@ export default class Brick {
 		this.ctx = ctx;
 		this.blockX = x;
 		this.blockY = y;
-		this.width = 25;
-		this.height = 10;
+		this.width = canvas.width / 20;
+		this.height = canvas.height / 20;
 	}
 
 	/**
@@ -34,8 +34,11 @@ export default class Brick {
 	draw () {
 		this.ctx.beginPath();
 		this.ctx.rect(this.blockX, this.blockY, this.width, this.height);
-		this.ctx.fillStyle = "#0095DD";
+		this.ctx.fillStyle = "#0f5bdd";
+		this.ctx.strokeStyle = "#123bdd";
+		this.ctx.lineWidth="6";
 		this.ctx.fill();
+		this.ctx.stroke();
 		this.ctx.closePath();
 	}
 

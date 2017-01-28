@@ -25,7 +25,6 @@ export default class Physics {
 		this.paddle = paddle;
 		this.ball = ball;
 		this.layout = layout;
-		console.log(this.layout);
 	}
 
 	/**
@@ -52,29 +51,57 @@ export default class Physics {
 		}
 		if (this.ball.y + this.ball.dy < this.ball.ballRadius) {
 			this.ball.hitSideY();
-		} else if (this.ball.y + this.ball.dy > this.canvas.height - this.ball.ballRadius) {
+		} else if (this.ball.y + this.ball.ballRadius + this.ball.dy > this.canvas.height - this.ball.ballRadius) {
 			if (this.ball.x > this.paddle.paddleX && this.ball.x < this.paddle.paddleX + this.paddle.paddleWidth) {
 				this.ball.hitSideY();
 				this.paddle.paddleHit();
+				this.calcRefraction();
 			} else {
 				document.location.reload();
 			}
 		}
 	}
 
+	/**
+	 * @description
+	 * Detects collisions between bricks
+	 *
+	 */
 	checkBlockHits () {
 		for (let [index, brick] of this.layout.bricks.entries()) {
+			if (brick) {
+				let xRange = this.ball.x >= brick.blockX && this.ball.x <= brick.blockX + brick.width;
+				let yRange = this.ball.y >= brick.blockY && this.ball.y <= brick.blockY + brick.height;
 
-			if (brick && this.ball.x > brick.blockX && this.ball.x < brick.blockX + brick.width && this.ball.y > brick.blockY && this.ball.y < brick.blockY + brick.height) {
-				if (this.ball.y >=  brick.blockY && this.ball.y <=  brick.blockY + this.ball.dy || this.ball.y >=  brick.blockY + brick.height && this.ball.y <=  brick.blockY + this.ball.dy + brick.height) {
+				let hitBottom = this.ball.y - this.ball.ballRadius + this.ball.dy <= brick.blockY + brick.height;
+				let hitTop = this.ball.y + this.ball.ballRadius + this.ball.dy >= brick.blockY;
+				let hitRight = this.ball.x  + this.ball.ballRadius + this.ball.dx >= brick.blockX;
+				let hitLeft = this.ball.x - this.ball.ballRadius + this.ball.dx <= brick.blockX + brick.width;
+
+				if (hitBottom && xRange && hitTop) {
 					this.ball.hitSideY();
-				}
-				if (this.ball.x >=  brick.blockX && this.ball.x <=  brick.blockX + this.ball.dx || this.ball.x >=  brick.blockX + brick.width && this.ball.x <=  brick.blockX + this.ball.dx + brick.width) {
+					brick.hit();
+					delete this.layout.bricks[index];
+				} else if (hitLeft && yRange && hitRight) {
 					this.ball.hitSideX();
+					brick.hit();
+					delete this.layout.bricks[index];
 				}
-				brick.hit();
-				delete this.layout.bricks[index];
 			}
 		}
+	}
+
+	calcRefraction () {
+		let ballHitPos = this.ball.x - this.paddle.paddleX;
+		let ballHitPercent = (ballHitPos / this.paddle.paddleWidth) * 100;
+		let refraction = 0;
+
+		if (ballHitPercent < 45) {
+			refraction = -2 * (100 - ballHitPercent) / 100;
+		} else if (ballHitPercent > 55) {
+			refraction = 2 * ballHitPercent / 100;
+		}
+
+		this.ball.hitPaddleRefraction(refraction);
 	}
 }

@@ -40,10 +40,13 @@ webpackJsonp([0],{
 		var ball = new _ball2.default(canvas, ctx);
 		var physics = new _physics2.default(canvas, ctx, paddle, ball, layout);
 	
-		setInterval(function () {
+		function draw() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			physics.draw();
-		}, 10);
+			requestAnimationFrame(draw);
+		}
+	
+		draw();
 	});
 
 /***/ },
@@ -129,6 +132,11 @@ webpackJsonp([0],{
 			value: function hitSideY() {
 				this.dy = -this.dy;
 			}
+		}, {
+			key: "hitPaddleRefraction",
+			value: function hitPaddleRefraction(refraction) {
+				this.dx += refraction;
+			}
 	
 			/**
 	   * @description
@@ -191,8 +199,8 @@ webpackJsonp([0],{
 	
 			this.canvas = canvas;
 			this.ctx = ctx;
-			this.paddleHeight = 10;
-			this.paddleWidth = 75;
+			this.paddleHeight = canvas.height * 0.03;
+			this.paddleWidth = canvas.width * 0.10;
 			this.paddleX = (canvas.width - this.paddleWidth) / 2;
 	
 			this.boundingRect = canvas.getBoundingClientRect();
@@ -296,7 +304,6 @@ webpackJsonp([0],{
 			this.paddle = paddle;
 			this.ball = ball;
 			this.layout = layout;
-			console.log(this.layout);
 		}
 	
 		/**
@@ -330,15 +337,23 @@ webpackJsonp([0],{
 				}
 				if (this.ball.y + this.ball.dy < this.ball.ballRadius) {
 					this.ball.hitSideY();
-				} else if (this.ball.y + this.ball.dy > this.canvas.height - this.ball.ballRadius) {
+				} else if (this.ball.y + this.ball.ballRadius + this.ball.dy > this.canvas.height - this.ball.ballRadius) {
 					if (this.ball.x > this.paddle.paddleX && this.ball.x < this.paddle.paddleX + this.paddle.paddleWidth) {
 						this.ball.hitSideY();
 						this.paddle.paddleHit();
+						this.calcRefraction();
 					} else {
 						document.location.reload();
 					}
 				}
 			}
+	
+			/**
+	   * @description
+	   * Detects collisions between bricks
+	   *
+	   */
+	
 		}, {
 			key: "checkBlockHits",
 			value: function checkBlockHits() {
@@ -352,15 +367,24 @@ webpackJsonp([0],{
 						    index = _step$value[0],
 						    brick = _step$value[1];
 	
-						if (brick && this.ball.x > brick.blockX && this.ball.x < brick.blockX + brick.width && this.ball.y > brick.blockY && this.ball.y < brick.blockY + brick.height) {
-							if (this.ball.y >= brick.blockY && this.ball.y <= brick.blockY + this.ball.dy || this.ball.y >= brick.blockY + brick.height && this.ball.y <= brick.blockY + this.ball.dy + brick.height) {
+						if (brick) {
+							var xRange = this.ball.x >= brick.blockX && this.ball.x <= brick.blockX + brick.width;
+							var yRange = this.ball.y >= brick.blockY && this.ball.y <= brick.blockY + brick.height;
+	
+							var hitBottom = this.ball.y - this.ball.ballRadius + this.ball.dy <= brick.blockY + brick.height;
+							var hitTop = this.ball.y + this.ball.ballRadius + this.ball.dy >= brick.blockY;
+							var hitRight = this.ball.x + this.ball.ballRadius + this.ball.dx >= brick.blockX;
+							var hitLeft = this.ball.x - this.ball.ballRadius + this.ball.dx <= brick.blockX + brick.width;
+	
+							if (hitBottom && xRange && hitTop) {
 								this.ball.hitSideY();
-							}
-							if (this.ball.x >= brick.blockX && this.ball.x <= brick.blockX + this.ball.dx || this.ball.x >= brick.blockX + brick.width && this.ball.x <= brick.blockX + this.ball.dx + brick.width) {
+								brick.hit();
+								delete this.layout.bricks[index];
+							} else if (hitLeft && yRange && hitRight) {
 								this.ball.hitSideX();
+								brick.hit();
+								delete this.layout.bricks[index];
 							}
-							brick.hit();
-							delete this.layout.bricks[index];
 						}
 					}
 				} catch (err) {
@@ -377,6 +401,21 @@ webpackJsonp([0],{
 						}
 					}
 				}
+			}
+		}, {
+			key: "calcRefraction",
+			value: function calcRefraction() {
+				var ballHitPos = this.ball.x - this.paddle.paddleX;
+				var ballHitPercent = ballHitPos / this.paddle.paddleWidth * 100;
+				var refraction = 0;
+	
+				if (ballHitPercent < 45) {
+					refraction = -2 * (100 - ballHitPercent) / 100;
+				} else if (ballHitPercent > 55) {
+					refraction = 2 * ballHitPercent / 100;
+				}
+	
+				this.ball.hitPaddleRefraction(refraction);
 			}
 		}]);
 	
@@ -435,46 +474,32 @@ webpackJsonp([0],{
 		_createClass(Layout, [{
 			key: 'init',
 			value: function init() {
-				var loops = 20;
-				var n = 1;
+				var layout = this.getLayout();
 				var y = void 0;
 				var x = void 0;
+				var row = void 0;
+				var pos = void 0;
+				var standardWidth = this.canvas.width / 20;
+				var standardHeight = this.canvas.height / 20;
 	
-				while (n <= loops) {
-					if (n <= 10) {
-						y = this.canvas.height / 10;
-					} else if (n <= 20) {
-						y = this.canvas.height / 10 * 2;
-					}
-	
-					x = n % 10 * this.canvas.width / 10 + 25 / 2;
-	
-					var brick = new _brick2.default(this.canvas, this.ctx, x, y);
-					this.bricks.push(brick);
-					n++;
-				}
-			}
-	
-			/**
-	   * @description
-	   * draw each block
-	   */
-	
-		}, {
-			key: 'draw',
-			value: function draw() {
 				var _iteratorNormalCompletion = true;
 				var _didIteratorError = false;
 				var _iteratorError = undefined;
 	
 				try {
-					for (var _iterator = this.bricks.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					for (var _iterator = layout.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 						var _step$value = _slicedToArray(_step.value, 2),
 						    index = _step$value[0],
 						    value = _step$value[1];
 	
-						if (value) {
-							value.draw();
+						row = Math.floor(index / 20);
+						pos = index % 20;
+						if (value === 1) {
+							x = pos * standardWidth;
+							y = row * standardHeight;
+	
+							var brick = new _brick2.default(this.canvas, this.ctx, x, y);
+							this.bricks.push(brick);
 						}
 					}
 				} catch (err) {
@@ -488,6 +513,105 @@ webpackJsonp([0],{
 					} finally {
 						if (_didIteratorError) {
 							throw _iteratorError;
+						}
+					}
+				}
+			}
+	
+			/**
+	   * @description
+	   * Using an array of numbers we can set different layouts
+	   *
+	   * @returns {Array}
+	   */
+	
+		}, {
+			key: 'getLayout',
+			value: function getLayout() {
+				switch (this.getRandomArbitrary(0, 10)) {
+					case 0:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+					case 1:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+					case 2:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+					case 3:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+					case 4:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+					case 5:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+					case 6:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+					case 7:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+					case 8:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+					case 9:
+						{
+							return [0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
+						}
+				}
+			}
+		}, {
+			key: 'getRandomArbitrary',
+			value: function getRandomArbitrary(min, max) {
+				min = Math.ceil(min);
+				max = Math.floor(max);
+				return Math.floor(Math.random() * (max - min)) + min;
+			}
+	
+			/**
+	   * @description
+	   * draw each block
+	   */
+	
+		}, {
+			key: 'draw',
+			value: function draw() {
+				var _iteratorNormalCompletion2 = true;
+				var _didIteratorError2 = false;
+				var _iteratorError2 = undefined;
+	
+				try {
+					for (var _iterator2 = this.bricks.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+						var _step2$value = _slicedToArray(_step2.value, 2),
+						    index = _step2$value[0],
+						    value = _step2$value[1];
+	
+						if (value) {
+							value.draw();
+						}
+					}
+				} catch (err) {
+					_didIteratorError2 = true;
+					_iteratorError2 = err;
+				} finally {
+					try {
+						if (!_iteratorNormalCompletion2 && _iterator2.return) {
+							_iterator2.return();
+						}
+					} finally {
+						if (_didIteratorError2) {
+							throw _iteratorError2;
 						}
 					}
 				}
@@ -540,8 +664,8 @@ webpackJsonp([0],{
 			this.ctx = ctx;
 			this.blockX = x;
 			this.blockY = y;
-			this.width = 25;
-			this.height = 10;
+			this.width = canvas.width / 20;
+			this.height = canvas.height / 20;
 		}
 	
 		/**
@@ -556,8 +680,11 @@ webpackJsonp([0],{
 			value: function draw() {
 				this.ctx.beginPath();
 				this.ctx.rect(this.blockX, this.blockY, this.width, this.height);
-				this.ctx.fillStyle = "#0095DD";
+				this.ctx.fillStyle = "#0f5bdd";
+				this.ctx.strokeStyle = "#123bdd";
+				this.ctx.lineWidth = "6";
 				this.ctx.fill();
+				this.ctx.stroke();
 				this.ctx.closePath();
 			}
 	

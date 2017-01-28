@@ -19,8 +19,11 @@ document.addEventListener("DOMContentLoaded",() => {
 	let ball = new Ball(canvas, ctx);
 	let physics = new Physics(canvas, ctx, paddle, ball, layout);
 
-	setInterval(() => {
+	function draw () {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		physics.draw();
-	}, 10);
+		requestAnimationFrame(draw);
+	}
+
+	draw();
 });

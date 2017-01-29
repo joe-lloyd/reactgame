@@ -13,6 +13,10 @@ import Layout from './layout';
 document.addEventListener("DOMContentLoaded",() => {
 	let canvas = document.getElementById('game');
 	let ctx = canvas.getContext('2d');
+	ctx.canvas.width  = window.innerWidth;
+	ctx.canvas.height = window.innerHeight;
+
+	canvas.style.backgroundColor = 'rgba(0, 0, 0, 1)';
 
 	let layout = new Layout(canvas, ctx);
 	let paddle = new Paddle(canvas, ctx);

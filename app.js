@@ -34,6 +34,10 @@ webpackJsonp([0],{
 	document.addEventListener("DOMContentLoaded", function () {
 		var canvas = document.getElementById('game');
 		var ctx = canvas.getContext('2d');
+		ctx.canvas.width = window.innerWidth;
+		ctx.canvas.height = window.innerHeight;
+	
+		canvas.style.backgroundColor = 'rgba(0, 0, 0, 1)';
 	
 		var layout = new _layout2.default(canvas, ctx);
 		var paddle = new _paddle2.default(canvas, ctx);
@@ -54,7 +58,7 @@ webpackJsonp([0],{
 /***/ 299:
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 		value: true
@@ -88,11 +92,12 @@ webpackJsonp([0],{
 	
 			this.ctx = ctx;
 			this.canvas = canvas;
+			this.state = 'static';
 			this.x = canvas.width / 2;
-			this.y = canvas.height - 30;
-			this.dx = 2;
-			this.dy = -2;
-			this.ballRadius = 5;
+			this.y = canvas.height * 0.9;
+			this.dx = 0;
+			this.dy = 0;
+			this.ballRadius = canvas.width / 200 + canvas.height / 200;
 		}
 	
 		/**
@@ -102,11 +107,24 @@ webpackJsonp([0],{
 	
 	
 		_createClass(Ball, [{
-			key: "move",
+			key: 'move',
 			value: function move() {
 				this.drawBall();
 				this.x += this.dx;
 				this.y += this.dy;
+			}
+		}, {
+			key: 'releaseBall',
+			value: function releaseBall() {
+				this.state = 'moving';
+				this.dx = 2;
+				this.dy = -4;
+			}
+		}, {
+			key: 'initBall',
+			value: function initBall(paddleX) {
+				this.drawBall();
+				this.x = paddleX;
 			}
 	
 			/**
@@ -116,7 +134,7 @@ webpackJsonp([0],{
 	   */
 	
 		}, {
-			key: "hitSideX",
+			key: 'hitSideX',
 			value: function hitSideX() {
 				this.dx = -this.dx;
 			}
@@ -128,12 +146,20 @@ webpackJsonp([0],{
 	   */
 	
 		}, {
-			key: "hitSideY",
+			key: 'hitSideY',
 			value: function hitSideY() {
 				this.dy = -this.dy;
 			}
+	
+			/**
+	   * @description
+	   * Changes the angle of the balls trajectory.
+	   *
+	   * @param refraction
+	   */
+	
 		}, {
-			key: "hitPaddleRefraction",
+			key: 'hitPaddleRefraction',
 			value: function hitPaddleRefraction(refraction) {
 				this.dx += refraction;
 			}
@@ -145,7 +171,7 @@ webpackJsonp([0],{
 	   */
 	
 		}, {
-			key: "drawBall",
+			key: 'drawBall',
 			value: function drawBall() {
 				this.ctx.beginPath();
 				this.ctx.arc(this.x, this.y, this.ballRadius, 0, Math.PI * 2);
@@ -165,7 +191,7 @@ webpackJsonp([0],{
 /***/ 300:
 /***/ function(module, exports) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 		value: true
@@ -202,11 +228,24 @@ webpackJsonp([0],{
 			this.paddleHeight = canvas.height * 0.03;
 			this.paddleWidth = canvas.width * 0.10;
 			this.paddleX = (canvas.width - this.paddleWidth) / 2;
+			this.paddleY = this.canvas.height - this.paddleHeight;
 	
 			this.boundingRect = canvas.getBoundingClientRect();
 	
 			document.addEventListener('mousemove', function (event) {
 				return _this.mouseMoveHandler(event);
+			}, false);
+			document.addEventListener("touchstart", function (event) {
+				return _this.handleTouchStart(event);
+			}, false);
+			document.addEventListener("touchend", function (event) {
+				return _this.handleTouchEnd(event);
+			}, false);
+			document.addEventListener("touchcancel", function (event) {
+				return _this.handleTouchCancel(event);
+			}, false);
+			document.addEventListener("touchmove", function (event) {
+				return _this.handleTouchMove(event);
 			}, false);
 		}
 	
@@ -218,12 +257,15 @@ webpackJsonp([0],{
 	
 	
 		_createClass(Paddle, [{
-			key: 'drawPaddle',
+			key: "drawPaddle",
 			value: function drawPaddle() {
 				this.ctx.beginPath();
-				this.ctx.rect(this.paddleX, this.canvas.height - this.paddleHeight, this.paddleWidth, this.paddleHeight);
+				this.ctx.rect(this.paddleX, this.paddleY, this.paddleWidth, this.paddleHeight);
 				this.ctx.fillStyle = "#0095DD";
+				this.ctx.strokeStyle = "#00dd4a";
+				this.ctx.lineWidth = "6";
 				this.ctx.fill();
+				this.ctx.stroke();
 				this.ctx.closePath();
 			}
 	
@@ -234,9 +276,29 @@ webpackJsonp([0],{
 	   */
 	
 		}, {
-			key: 'paddleHit',
+			key: "paddleHit",
 			value: function paddleHit() {
-				console.log('hit!');
+				var no1 = this.getRandomArbitrary(0, 255);
+				var no2 = this.getRandomArbitrary(0, 255);
+				var no3 = this.getRandomArbitrary(0, 255);
+				this.canvas.style.backgroundColor = "rgba(" + no1 + ", " + no2 + ", " + no3 + ", 1)";
+			}
+	
+			/**
+	   * @description
+	   * Gets a random number between limits
+	   *
+	   * @param min
+	   * @param max
+	   * @returns {*}
+	   */
+	
+		}, {
+			key: "getRandomArbitrary",
+			value: function getRandomArbitrary(min, max) {
+				min = Math.ceil(min);
+				max = Math.floor(max);
+				return Math.floor(Math.random() * (max - min)) + min;
 			}
 	
 			/**
@@ -247,9 +309,29 @@ webpackJsonp([0],{
 	   */
 	
 		}, {
-			key: 'mouseMoveHandler',
+			key: "mouseMoveHandler",
 			value: function mouseMoveHandler(event) {
 				this.paddleX = event.clientX - this.boundingRect.left;
+			}
+		}, {
+			key: "handleTouchStart",
+			value: function handleTouchStart(event) {
+				this.paddleX = event.touches[0].clientX - this.boundingRect.left;
+			}
+		}, {
+			key: "handleTouchEnd",
+			value: function handleTouchEnd(event) {
+				// this.paddleX = event.touches[0].clientX - this.boundingRect.left;
+			}
+		}, {
+			key: "handleTouchCancel",
+			value: function handleTouchCancel(event) {
+				console.log(event);
+			}
+		}, {
+			key: "handleTouchMove",
+			value: function handleTouchMove(event) {
+				this.paddleX = event.touches[0].clientX - this.boundingRect.left;
 			}
 		}]);
 	
@@ -263,7 +345,7 @@ webpackJsonp([0],{
 /***/ 301:
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 		value: true
@@ -297,6 +379,8 @@ webpackJsonp([0],{
 	  * @param layout
 	  */
 		function Physics(canvas, ctx, paddle, ball, layout) {
+			var _this = this;
+	
 			_classCallCheck(this, Physics);
 	
 			this.ctx = ctx;
@@ -304,6 +388,9 @@ webpackJsonp([0],{
 			this.paddle = paddle;
 			this.ball = ball;
 			this.layout = layout;
+			document.addEventListener('click', function (event) {
+				return _this.handleClick(event);
+			}, false);
 		}
 	
 		/**
@@ -314,12 +401,12 @@ webpackJsonp([0],{
 	
 	
 		_createClass(Physics, [{
-			key: "draw",
+			key: 'draw',
 			value: function draw() {
 				this.layout.draw();
 				this.collisionDetection();
 				this.paddle.drawPaddle();
-				this.ball.move();
+				this.ballState();
 			}
 	
 			/**
@@ -329,15 +416,15 @@ webpackJsonp([0],{
 	   */
 	
 		}, {
-			key: "collisionDetection",
+			key: 'collisionDetection',
 			value: function collisionDetection() {
 				this.checkBlockHits();
 				if (this.ball.x + this.ball.dx > this.canvas.width - this.ball.ballRadius || this.ball.x + this.ball.dx < this.ball.ballRadius) {
 					this.ball.hitSideX();
 				}
-				if (this.ball.y + this.ball.dy < this.ball.ballRadius) {
+				if (this.ball.y + this.ball.dy <= this.ball.ballRadius) {
 					this.ball.hitSideY();
-				} else if (this.ball.y + this.ball.ballRadius + this.ball.dy > this.canvas.height - this.ball.ballRadius) {
+				} else if (this.ball.y + this.ball.ballRadius >= this.paddle.paddleY) {
 					if (this.ball.x > this.paddle.paddleX && this.ball.x < this.paddle.paddleX + this.paddle.paddleWidth) {
 						this.ball.hitSideY();
 						this.paddle.paddleHit();
@@ -355,7 +442,7 @@ webpackJsonp([0],{
 	   */
 	
 		}, {
-			key: "checkBlockHits",
+			key: 'checkBlockHits',
 			value: function checkBlockHits() {
 				var _iteratorNormalCompletion = true;
 				var _didIteratorError = false;
@@ -402,8 +489,15 @@ webpackJsonp([0],{
 					}
 				}
 			}
+	
+			/**
+	   * @description
+	   * Changes the X of the ball to make it bounce based on paddle hit
+	   *
+	   */
+	
 		}, {
-			key: "calcRefraction",
+			key: 'calcRefraction',
 			value: function calcRefraction() {
 				var ballHitPos = this.ball.x - this.paddle.paddleX;
 				var ballHitPercent = ballHitPos / this.paddle.paddleWidth * 100;
@@ -416,6 +510,38 @@ webpackJsonp([0],{
 				}
 	
 				this.ball.hitPaddleRefraction(refraction);
+			}
+	
+			/**
+	   * @description
+	   * Checks the state of the ball to decide what movement mode it should be in
+	   *
+	   */
+	
+		}, {
+			key: 'ballState',
+			value: function ballState() {
+				if (this.ball.state === 'static') {
+					var ballsPosition = this.paddle.paddleX + this.paddle.paddleWidth / 2;
+					this.ball.initBall(ballsPosition);
+				} else {
+					this.ball.move();
+				}
+			}
+	
+			/**
+	   * @description
+	   * Releases the ball if its in static mode
+	   *
+	   */
+	
+		}, {
+			key: 'handleClick',
+			value: function handleClick() {
+				if (this.ball.state === 'static') {
+					this.ball.releaseBall();
+					new Audio('./sound/run.mp3').play();
+				}
 			}
 		}]);
 	
@@ -455,6 +581,13 @@ webpackJsonp([0],{
 	 *
 	 */
 	var Layout = function () {
+	
+		/**
+	  * @constructor
+	  *
+	  * @param canvas
+	  * @param ctx
+	  */
 		function Layout(canvas, ctx) {
 			_classCallCheck(this, Layout);
 	
@@ -571,6 +704,16 @@ webpackJsonp([0],{
 						}
 				}
 			}
+	
+			/**
+	   * @description
+	   * Gets a random number between limits
+	   *
+	   * @param min
+	   * @param max
+	   * @returns {*}
+	   */
+	
 		}, {
 			key: 'getRandomArbitrary',
 			value: function getRandomArbitrary(min, max) {
@@ -582,6 +725,7 @@ webpackJsonp([0],{
 			/**
 	   * @description
 	   * draw each block
+	   *
 	   */
 	
 		}, {
@@ -681,7 +825,7 @@ webpackJsonp([0],{
 				this.ctx.beginPath();
 				this.ctx.rect(this.blockX, this.blockY, this.width, this.height);
 				this.ctx.fillStyle = "#0f5bdd";
-				this.ctx.strokeStyle = "#123bdd";
+				this.ctx.strokeStyle = "#0fdd91";
 				this.ctx.lineWidth = "6";
 				this.ctx.fill();
 				this.ctx.stroke();

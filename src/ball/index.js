@@ -20,11 +20,12 @@ export default class Ball {
 	constructor (canvas, ctx) {
 		this.ctx = ctx;
 		this.canvas = canvas;
+		this.state = 'static';
 		this.x = canvas.width / 2;
-		this.y = canvas.height - 30;
-		this.dx = 2;
-		this.dy = -2;
-		this.ballRadius = 5;
+		this.y = canvas.height * 0.9;
+		this.dx = 0;
+		this.dy = 0;
+		this.ballRadius = canvas.width / 200 + canvas.height / 200;
 	}
 
 	/**
@@ -35,6 +36,17 @@ export default class Ball {
 		this.drawBall();
 		this.x += this.dx;
 		this.y += this.dy;
+	}
+
+	releaseBall () {
+		this.state = 'moving';
+		this.dx = 2;
+		this.dy = -4;
+	}
+
+	initBall (paddleX) {
+		this.drawBall();
+		this.x = paddleX;
 	}
 
 	/**
@@ -55,6 +67,12 @@ export default class Ball {
 		this.dy = -this.dy;
 	}
 
+	/**
+	 * @description
+	 * Changes the angle of the balls trajectory.
+	 *
+	 * @param refraction
+	 */
 	hitPaddleRefraction(refraction) {
 		this.dx += refraction;
 	}

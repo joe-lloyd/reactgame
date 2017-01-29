@@ -25,6 +25,7 @@ export default class Physics {
 		this.paddle = paddle;
 		this.ball = ball;
 		this.layout = layout;
+		document.addEventListener('click', (event) => this.handleClick(event), false);
 	}
 
 	/**
@@ -36,7 +37,7 @@ export default class Physics {
 		this.layout.draw();
 		this.collisionDetection();
 		this.paddle.drawPaddle();
-		this.ball.move();
+		this.ballState();
 	}
 
 	/**
@@ -49,9 +50,9 @@ export default class Physics {
 		if (this.ball.x + this.ball.dx > this.canvas.width - this.ball.ballRadius || this.ball.x + this.ball.dx < this.ball.ballRadius) {
 			this.ball.hitSideX();
 		}
-		if (this.ball.y + this.ball.dy < this.ball.ballRadius) {
+		if (this.ball.y + this.ball.dy <= this.ball.ballRadius) {
 			this.ball.hitSideY();
-		} else if (this.ball.y + this.ball.ballRadius + this.ball.dy > this.canvas.height - this.ball.ballRadius) {
+		} else if (this.ball.y + this.ball.ballRadius >= this.paddle.paddleY) {
 			if (this.ball.x > this.paddle.paddleX && this.ball.x < this.paddle.paddleX + this.paddle.paddleWidth) {
 				this.ball.hitSideY();
 				this.paddle.paddleHit();
@@ -91,6 +92,11 @@ export default class Physics {
 		}
 	}
 
+	/**
+	 * @description
+	 * Changes the X of the ball to make it bounce based on paddle hit
+	 *
+	 */
 	calcRefraction () {
 		let ballHitPos = this.ball.x - this.paddle.paddleX;
 		let ballHitPercent = (ballHitPos / this.paddle.paddleWidth) * 100;
@@ -103,5 +109,31 @@ export default class Physics {
 		}
 
 		this.ball.hitPaddleRefraction(refraction);
+	}
+
+	/**
+	 * @description
+	 * Checks the state of the ball to decide what movement mode it should be in
+	 *
+	 */
+	ballState () {
+		if (this.ball.state === 'static') {
+			let ballsPosition = this.paddle.paddleX + this.paddle.paddleWidth / 2;
+			this.ball.initBall(ballsPosition);
+		} else {
+			this.ball.move();
+		}
+	}
+
+	/**
+	 * @description
+	 * Releases the ball if its in static mode
+	 *
+	 */
+	handleClick () {
+		if (this.ball.state === 'static') {
+			this.ball.releaseBall();
+			new Audio('./sound/run.mp3').play()
+		}
 	}
 }

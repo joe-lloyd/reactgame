@@ -35,7 +35,7 @@ export default class Brick {
 		this.ctx.beginPath();
 		this.ctx.rect(this.blockX, this.blockY, this.width, this.height);
 		this.ctx.fillStyle = "#0f5bdd";
-		this.ctx.strokeStyle = "#123bdd";
+		this.ctx.strokeStyle = "#0fdd91";
 		this.ctx.lineWidth="6";
 		this.ctx.fill();
 		this.ctx.stroke();

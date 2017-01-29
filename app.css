@@ -1,11 +1,13 @@
 canvas {
 	margin: auto;
-	border: solid 1px black;
-	border-radius: 5px;
 	cursor: none;
+	-webkit-transition: background-color 500ms ease-out;
+	-moz-transition: background-color 500ms ease-out;
+	-o-transition: background-color 500ms ease-out;
+	transition: background-color 500ms ease-out;
 }
 
-main {
-	margin: auto;
-	width: 500px;
+body {overflow: hidden;
+	margin: 0;
+	/*width: 500px;*/
 }

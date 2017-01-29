@@ -8,6 +8,12 @@ import Brick from '../brick';
  */
 export default class Layout {
 
+	/**
+	 * @constructor
+	 *
+	 * @param canvas
+	 * @param ctx
+	 */
 	constructor (canvas, ctx) {
 		this.canvas = canvas;
 		this.ctx = ctx;
@@ -143,6 +149,14 @@ export default class Layout {
 		}
 	}
 
+	/**
+	 * @description
+	 * Gets a random number between limits
+	 *
+	 * @param min
+	 * @param max
+	 * @returns {*}
+	 */
 	getRandomArbitrary (min, max) {
 		min = Math.ceil(min);
 		max = Math.floor(max);
@@ -152,6 +166,7 @@ export default class Layout {
 	/**
 	 * @description
 	 * draw each block
+	 *
 	 */
 	draw () {
 		for (let [index, value] of this.bricks.entries()) {
